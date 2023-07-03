@@ -13,7 +13,12 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	server := providers.ProvideHTTPServer(cnf)
 
+	logger, err := providers.ProvideConsoleLogger(cnf)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	server := providers.ProvideHTTPServer(cnf, logger)
 	server.Start()
 }
