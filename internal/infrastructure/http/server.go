@@ -54,5 +54,6 @@ func (s *EchoHTTPServer) Stop() {
 }
 
 func (s *EchoHTTPServer) handleAnalitycs(ctx echo.Context) error {
+	// todo fix names
 	return s.analitycsController.HandleAnalitics(ctx)
 }

@@ -19,6 +19,12 @@ func main() {
 		log.Panic(err)
 	}
 
+	db, err := providers.ProvideDB(cnf, logger)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	_ = db
 	server := providers.ProvideHTTPServer(cnf, logger)
 	server.Start()
 }
