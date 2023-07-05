@@ -26,8 +26,7 @@ func startHTTPMetricServer(port string, log logger.Logger) {
 	})
 
 	go func() {
-		port := fmt.Sprintf(":%v", port)
-		if err = metricServer.Start(port); err != nil {
+		if err = metricServer.Start(fmt.Sprintf(":%v", port)); err != nil {
 			log.Error(err)
 		}
 	}()
