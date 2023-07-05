@@ -37,7 +37,11 @@ func (c *analitycsController) HandleAnalitycs(ctx echo.Context) error {
 	headers := c.getHeaders(ctx)
 
 	body := make(map[string]interface{})
-	ctx.Bind(&body)
+	err := ctx.Bind(&body)
+	if err != nil {
+		c.logger.ErrorF("Controller error:%v", err)
+		return ctx.String(http.StatusBadRequest, api.InvalidBodyError)
+	}
 
 	action := &entities.Action{
 		UserId: headers["X-Tantum-Authorization"].(string),
@@ -49,7 +53,7 @@ func (c *analitycsController) HandleAnalitycs(ctx echo.Context) error {
 
 	c.wp.sendData(action)
 
-	return ctx.String(http.StatusAccepted, "OK")
+	return ctx.String(http.StatusAccepted, api.OKResponse)
 }
 
 func (c *analitycsController) getHeaders(ctx echo.Context) map[string]interface{} {

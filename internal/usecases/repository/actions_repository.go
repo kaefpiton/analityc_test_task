@@ -1,5 +1,5 @@
 package repository
 
 type ActionsRepository interface {
-	Create(userId string, data []byte) error
+	Create(userId string, data []byte)
 }

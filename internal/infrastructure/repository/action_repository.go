@@ -20,7 +20,7 @@ func NewActionRepository(db *postgres.DB, logger logger.Logger) repository.Actio
 	}
 }
 
-func (r *actionsRepository) Create(userId string, data []byte) error {
+func (r *actionsRepository) Create(userId string, data []byte) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -29,6 +29,4 @@ func (r *actionsRepository) Create(userId string, data []byte) error {
 	if err != nil {
 		r.logger.ErrorF("repo error:%w", err)
 	}
-
-	return err
 }
