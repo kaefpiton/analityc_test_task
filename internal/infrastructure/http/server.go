@@ -1,16 +1,18 @@
 package http
 
 import (
+	"analityc_test_task/internal/entities/api"
 	"analityc_test_task/internal/interfaces/httpControllers"
 	"analityc_test_task/pkg/logger"
 	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type HTTPServer interface {
 	Start()
-	Stop()
+	Stop(ctx context.Context)
 }
 
 type EchoHTTPServer struct {
@@ -22,11 +24,13 @@ type EchoHTTPServer struct {
 
 func NewEchoHTTPServer(
 	port string,
+	analitycsController httpControllers.AnalitycsController,
 	logger logger.Logger,
 ) *EchoHTTPServer {
 	server := &EchoHTTPServer{
-		echo:                echo.New(),
-		analitycsController: httpControllers.NewAnalitycsControllerImpl(),
+		echo: echo.New(),
+		//todo вынести в провайдер
+		analitycsController: analitycsController,
 		port:                port,
 		logger:              logger,
 	}
@@ -35,6 +39,7 @@ func NewEchoHTTPServer(
 }
 
 func (s *EchoHTTPServer) Start() {
+	s.echo.Use(ValidateHeaders)
 	s.echo.POST("/analitycs", s.handleAnalitycs)
 
 	func() {
@@ -45,15 +50,31 @@ func (s *EchoHTTPServer) Start() {
 	}()
 }
 
-// todo для шатдауна
-func (s *EchoHTTPServer) Stop() {
-	err := s.echo.Shutdown(context.Background())
+func (s *EchoHTTPServer) Stop(ctx context.Context) {
+	err := s.echo.Shutdown(ctx)
 	if err != nil {
 		s.logger.Error("Echo error:", err)
 	}
 }
 
+func ValidateHeaders(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if c.Request().Header.Get(api.ContentTypeHeader) == "" {
+			return c.String(http.StatusBadRequest, api.InvalidHeadersError)
+		}
+
+		if c.Request().Header.Get(api.TantumAuthHeader) == "" {
+			return c.String(http.StatusBadRequest, api.InvalidHeadersError)
+		}
+
+		if c.Request().Header.Get(api.TantumUserAgentHeader) == "" {
+			return c.String(http.StatusBadRequest, api.InvalidHeadersError)
+		}
+
+		return next(c)
+	}
+}
+
 func (s *EchoHTTPServer) handleAnalitycs(ctx echo.Context) error {
-	// todo fix names
-	return s.analitycsController.HandleAnalitics(ctx)
+	return s.analitycsController.HandleAnalitycs(ctx)
 }

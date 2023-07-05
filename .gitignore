@@ -1,4 +1,4 @@
 .idea
 .bin
 
-/cmd/config/config.json
+/configs/config.json

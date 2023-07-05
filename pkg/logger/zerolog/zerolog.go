@@ -53,3 +53,23 @@ func (z *ZeroLogWrapper) Info(kv ...interface{}) {
 	msg := fmt.Sprint(kv...)
 	z.log.Info().Msg(msg)
 }
+
+func (z *ZeroLogWrapper) InfoF(str string, kv ...interface{}) {
+	msg := fmt.Sprintf(str, kv...)
+	z.log.Info().Msg(msg)
+}
+
+func (z *ZeroLogWrapper) WarnF(str string, kv ...interface{}) {
+	msg := fmt.Sprintf(str, kv...)
+	z.log.Warn().Msg(msg)
+}
+
+func (z *ZeroLogWrapper) ErrorF(str string, kv ...interface{}) {
+	msg := fmt.Sprintf(str, kv...)
+	z.log.Error().Msg(msg)
+}
+
+func (z *ZeroLogWrapper) DebugF(str string, kv ...interface{}) {
+	msg := fmt.Sprintf(str, kv...)
+	z.log.Debug().Msg(msg)
+}
