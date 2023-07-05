@@ -8,7 +8,8 @@ import (
 
 type Config struct {
 	HttpServer struct {
-		Port string `json:"port"`
+		Port        string `json:"port"`
+		MetricsPort string `json:"metrics_port"`
 	}
 
 	Postgres struct {

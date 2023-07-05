@@ -11,3 +11,19 @@ services:
       POSTGRES_USER: pguser
       POSTGRES_PASSWORD: pguser
       POSTGRES_DB: pgdb
+
+
+  prometheus:
+    image: prom/prometheus:v2.32.1
+    user: root
+    volumes:
+      - "./etc/prometheus/:/etc/prometheus/prometheus.yaml"
+      - "./var/prometheus/prometheus_data:/prometheus"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9090:9090"

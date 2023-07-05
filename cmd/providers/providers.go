@@ -14,14 +14,13 @@ import (
 )
 
 func ProvideHTTPServer(config *configs.Config, analitycsController httpControllers.AnalitycsController, logger logger.Logger) http.HTTPServer {
-	return http.NewEchoHTTPServer(config.HttpServer.Port, analitycsController, logger)
+	return http.NewEchoHTTPServer(config.HttpServer.Port, config.HttpServer.MetricsPort, analitycsController, logger)
 }
 
 func ProvideConsoleLogger(cnf *configs.Config) (logger.Logger, error) {
 	return zerolog.NewZeroLog(os.Stderr, cnf.Logger.Lvl)
 }
 
-// todo вернуть closer func
 func ProvideDB(cnf *configs.Config, logger logger.Logger) (*postgres.DB, func(), error) {
 	repo, err := postgres.NewDBConnection(cnf, logger)
 	if err != nil {

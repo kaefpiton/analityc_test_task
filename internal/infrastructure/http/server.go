@@ -3,6 +3,7 @@ package http
 import (
 	"analityc_test_task/internal/entities/api"
 	"analityc_test_task/internal/interfaces/httpControllers"
+	"analityc_test_task/internal/metrics"
 	"analityc_test_task/pkg/logger"
 	"context"
 	"fmt"
@@ -17,21 +18,23 @@ type HTTPServer interface {
 
 type EchoHTTPServer struct {
 	echo                *echo.Echo
-	port                string
+	serverPort          string
+	metricsServerPort   string
 	analitycsController httpControllers.AnalitycsController
 	logger              logger.Logger
 }
 
 func NewEchoHTTPServer(
-	port string,
+	ServerPort string,
+	metricsServerPort string,
 	analitycsController httpControllers.AnalitycsController,
 	logger logger.Logger,
 ) *EchoHTTPServer {
 	server := &EchoHTTPServer{
-		echo: echo.New(),
-		//todo вынести в провайдер
+		echo:                echo.New(),
 		analitycsController: analitycsController,
-		port:                port,
+		serverPort:          ServerPort,
+		metricsServerPort:   metricsServerPort,
 		logger:              logger,
 	}
 
@@ -39,11 +42,13 @@ func NewEchoHTTPServer(
 }
 
 func (s *EchoHTTPServer) Start() {
+	go startHTTPMetricServer(s.metricsServerPort, s.logger)
+
 	s.echo.Use(ValidateHeaders)
 	s.echo.POST("/analitycs", s.handleAnalitycs)
 
 	func() {
-		port := fmt.Sprintf(":%v", s.port)
+		port := fmt.Sprintf(":%v", s.serverPort)
 		if err := s.echo.Start(port); err != nil {
 			s.logger.Error("Echo error:", err)
 		}
@@ -76,5 +81,6 @@ func ValidateHeaders(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 func (s *EchoHTTPServer) handleAnalitycs(ctx echo.Context) error {
+	metrics.RequestsTotal.Inc()
 	return s.analitycsController.HandleAnalitycs(ctx)
 }
